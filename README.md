@@ -1,103 +1,89 @@
-# TSDX User Guide
+# GraphQL Cache Control
 
-Congrats! You just saved yourself hours of work by bootstrapping this project with TSDX. Let’s get you oriented with what’s here and how to use it.
+This package offers you a simple decorator to set cache control on your resolvers.
 
-> This TSDX setup is meant for developing libraries (not apps!) that can be published to NPM. If you’re looking to build a Node app, you could use `ts-node-dev`, plain `ts-node`, or simple `tsc`.
+## Installation
 
-> If you’re new to TypeScript, checkout [this handy cheatsheet](https://devhints.io/typescript)
+On Yarn:
 
-## Commands
-
-TSDX scaffolds your new library inside `/src`.
-
-To run TSDX, use:
-
-```bash
-npm start # or yarn start
+```shell
+yarn add @exonest/graphql-cache-control
 ```
 
-This builds to `/dist` and runs the project in watch mode so any edits you save inside `src` causes a rebuild to `/dist`.
+On NPM:
 
-To do a one-off build, use `npm run build` or `yarn build`.
-
-To run tests, use `npm test` or `yarn test`.
-
-## Configuration
-
-Code quality is set up for you with `prettier`, `husky`, and `lint-staged`. Adjust the respective fields in `package.json` accordingly.
-
-### Jest
-
-Jest tests are set up to run with `npm test` or `yarn test`.
-
-### Bundle Analysis
-
-[`size-limit`](https://github.com/ai/size-limit) is set up to calculate the real cost of your library with `npm run size` and visualize the bundle with `npm run analyze`.
-
-#### Setup Files
-
-This is the folder structure we set up for you:
-
-```txt
-/src
-  index.tsx       # EDIT THIS
-/test
-  blah.test.tsx   # EDIT THIS
-.gitignore
-package.json
-README.md         # EDIT THIS
-tsconfig.json
+```shell
+npm install @exonest/graphql-cache-control
 ```
 
-### Rollup
+## Usage
 
-TSDX uses [Rollup](https://rollupjs.org) as a bundler and generates multiple rollup configs for various module formats and build settings. See [Optimizations](#optimizations) for details.
+To use caching, you are gonna need these packages too:
 
-### TypeScript
+```
+@nestjs/graphql
+apollo-server-core
+apollo-server-plugin-response-cache
+```
 
-`tsconfig.json` is set up to interpret `dom` and `esnext` types, as well as `react` for `jsx`. Adjust according to your needs.
+First, register graphql module and cache plugins in your app module:
 
-## Continuous Integration
+```ts
+import responseCachePlugin from 'apollo-server-plugin-response-cache';
+import { ApolloServerPluginCacheControl } from 'apollo-server-core/dist/plugin/cacheControl';
 
-### GitHub Actions
+GraphQLModule.forRoot({
+  // ...
+  plugins: [
+    ApolloServerPluginCacheControl({ defaultMaxAge: 5 }), // optional
+    responseCachePlugin(),
+  ],
+}),
+```
+> To add Redis or other caching stores, check [Apollo's docs](https://www.apollographql.com/docs/apollo-server/performance/caching/#in-memory-cache-setup)
 
-Two actions are added by default:
+Then, you can use the decorator on your queries and field resolvers:
 
-- `main` which installs deps w/ cache, lints, tests, and builds on all pushes against a Node and OS matrix
-- `size` which comments cost comparison of your library on every pull request using [`size-limit`](https://github.com/ai/size-limit)
+```ts
+import { CacheControl } from '@exonest/graphql-cache-control';
 
-## Optimizations
-
-Please see the main `tsdx` [optimizations docs](https://github.com/palmerhq/tsdx#optimizations). In particular, know that you can take advantage of development-only optimizations:
-
-```js
-// ./types/index.d.ts
-declare var __DEV__: boolean;
-
-// inside your code...
-if (__DEV__) {
-  console.log('foo');
+@Resolver((type) => Post)
+export class PostResolver {
+  @Query(() => [Post])
+  @CacheControl({ maxAge: 10 })
+  posts() {
+    // database calls
+    return posts;
+  }
+  
+  @ResolveField(() => User)
+  @CacheControl({ inheritMaxAge: true })
+  owner() {
+    // database calls
+    return owner;
+  }
+  
+  @ResolveField(() => boolean)
+  @CacheControl({ maxAge: 5, scope: "PRIVATE" })
+  hasLiked() {
+    // database calls
+    return hasLiked;
+  }
 }
 ```
 
-You can also choose to install and use [invariant](https://github.com/palmerhq/tsdx#invariant) and [warning](https://github.com/palmerhq/tsdx#warning) functions.
+## How The Apollo Cache Works
 
-## Module Formats
+Please carefully read [Apollo's docs about caching](https://www.apollographql.com/docs/apollo-server/performance/caching/) to understand how caching works, since it has a set of rules for cache calculation. In a brief:
+>a response should only be considered cacheable if every part of that response opts in to being cacheable. At the same time, we don't think developers should have to specify cache hints for every single field in their schema.
+So, we follow these heuristics:
+Root field resolvers are extremely likely to fetch data (because these fields have no parent), so we set their default maxAge to 0 to avoid automatically caching data that shouldn't be cached.
+Resolvers for other non-scalar fields (objects, interfaces, and unions) also commonly fetch data because they contain arbitrarily many fields. Consequently, we also set their default maxAge to 0.
+Resolvers for scalar, non-root fields rarely fetch data and instead usually populate data via the parent argument. Consequently, these fields inherit their default maxAge from their parent to reduce schema clutter.
 
-CJS, ESModules, and UMD module formats are supported.
 
-The appropriate paths are configured in `package.json` and `dist/index.js` accordingly. Please report if any issues are found.
+## Connections (Pagination)
 
-## Named Exports
+If you happen to use [@exonest/graphql-connections](https://github.com/exonest/graphql-connections), `edges` and `node` will automatically inherit cache control from their parents. but otherwise you should set `inheritMaxAge` on your connection fields to prevent connections from cancelling your cache.
 
-Per Palmer Group guidelines, [always use named exports.](https://github.com/palmerhq/typescript#exports) Code split inside your React app instead of your React library.
-
-## Including Styles
-
-There are many ways to ship styles, including with CSS-in-JS. TSDX has no opinion on this, configure how you like.
-
-For vanilla CSS, you can include it at the root directory and add it to the `files` section in your `package.json`, so that it can be imported separately by your users and run through their bundler's loader.
-
-## Publishing to NPM
-
-We recommend using [np](https://github.com/sindresorhus/np).
+Why you should do that? because you probably don't want your connections to cancel your cache control. ([learn more](https://www.apollographql.com/docs/apollo-server/performance/caching/#default-maxage))
