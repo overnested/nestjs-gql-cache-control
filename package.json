@@ -13,7 +13,7 @@
   "homepage": "https://github.com/overnested",
   "repository": {
     "type": "git",
-    "url": "https://github.com/overnested/nestjs-gql-connections"
+    "url": "https://github.com/overnested/nestjs-gql-cache-control"
   },
   "scripts": {
     "start": "tsdx watch",
