@@ -10,10 +10,10 @@
   "engines": {
     "node": ">=10"
   },
-  "homepage": "https://github.com/exonest",
+  "homepage": "https://github.com/overnested",
   "repository": {
     "type": "git",
-    "url": "https://github.com/exonest/graphql-connections"
+    "url": "https://github.com/overnested/nestjs-gql-connections"
   },
   "scripts": {
     "start": "tsdx watch",
@@ -36,8 +36,11 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "name": "@exonest/graphql-cache-control",
-  "author": "Alireza Zamani",
+  "name": "nestjs-gql-cache-control",
+  "author": {
+    "email": "alirezazamani2922@gmail.com",
+    "name": "Alireza Zamani"
+  },
   "module": "dist/graphql-cache-control.esm.js",
   "size-limit": [
     {
