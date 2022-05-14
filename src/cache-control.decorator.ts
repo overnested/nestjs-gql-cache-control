@@ -12,7 +12,7 @@ export const CacheControl = ({
   inheritMaxAge,
 }: CacheControlOptions) =>
   Directive(
-    `@cacheControl(scope: ${scope}${maxAge ? `, maxAge: ${maxAge}` : ''}${
+    `@cacheControl(scope: ${scope}${maxAge !== undefined ? `, maxAge: ${maxAge}` : ''}${
       inheritMaxAge ? `, inheritMaxAge: ${inheritMaxAge}` : ''
     })`
   );
