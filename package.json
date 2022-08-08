@@ -24,7 +24,6 @@
     "size": "size-limit",
     "analyze": "size-limit --why"
   },
-  "peerDependencies": {},
   "husky": {
     "hooks": {
       "pre-commit": "tsdx lint"
@@ -67,5 +66,6 @@
     "apollo-server-core": "^3.5.0",
     "graphql": "15.7.0",
     "reflect-metadata": "^0.1.13"
-  }
+  },
+  "packageManager": "yarn@3.2.2"
 }
