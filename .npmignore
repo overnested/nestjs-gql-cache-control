@@ -1,0 +1,12 @@
+.github
+.yarn
+dist
+node_modules
+test
+.gitignore
+.npmignore
+.prettierrc
+.yarnrc.yml
+yarn.lock
+README.md
+tsconfig.json

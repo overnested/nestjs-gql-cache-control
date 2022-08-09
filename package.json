@@ -1,5 +1,5 @@
 {
-  "version": "0.1.2",
+  "version": "0.2.0",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -24,17 +24,10 @@
     "size": "size-limit",
     "analyze": "size-limit --why"
   },
-  "peerDependencies": {},
   "husky": {
     "hooks": {
       "pre-commit": "tsdx lint"
     }
-  },
-  "prettier": {
-    "printWidth": 80,
-    "semi": true,
-    "singleQuote": true,
-    "trailingComma": "es5"
   },
   "name": "nestjs-gql-cache-control",
   "author": {
@@ -52,20 +45,25 @@
       "limit": "10 KB"
     }
   ],
-  "devDependencies": {
-    "@size-limit/preset-small-lib": "^7.0.3",
-    "husky": "^7.0.4",
-    "size-limit": "^7.0.3",
-    "tsdx": "^0.14.1",
-    "tslib": "^2.3.1",
-    "typescript": "^4.5.2"
+  "peerDependencies": {
+    "@nestjs/common": "^7.6.18 || ^8.0.0 || ^9.0.0",
+    "@nestjs/core": "^7.6.18 || ^8.0.0 || ^9.0.0",
+    "@nestjs/graphql": "^8.0.2 || ^9.1.2 || ^10.0.0",
+    "graphql": "^15.0.0 || ^16.0.0"
   },
-  "dependencies": {
-    "@nestjs/common": "^8.2.3",
-    "@nestjs/core": "^8.2.3",
-    "@nestjs/graphql": "^9.1.1",
-    "apollo-server-core": "^3.5.0",
-    "graphql": "15.7.0",
-    "reflect-metadata": "^0.1.13"
-  }
+  "devDependencies": {
+    "@nestjs/common": "^9.0.8",
+    "@nestjs/core": "^9.0.8",
+    "@nestjs/graphql": "^10.0.21",
+    "graphql": "^16.5.0",
+    "husky": "^8.0.1",
+    "prettier": "^2.7.1",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.5.6",
+    "size-limit": "^8.0.0",
+    "tsdx": "^0.14.1",
+    "tslib": "^2.4.0",
+    "typescript": "^4.7.4"
+  },
+  "packageManager": "yarn@3.2.2"
 }
